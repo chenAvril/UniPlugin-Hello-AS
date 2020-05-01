@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:fitsSystemWindows="true">
+
+<!--    android:background="@drawable/float_view_bg"-->
+    <RelativeLayout
+        android:id="@+id/content_wrap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+
+        <LinearLayout
+            android:id="@+id/ll_floating"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/iv_float"
+                android:src="@drawable/record"
+                android:padding="5dp"
+                android:background="@drawable/floating_round_bg"
+                android:layout_width="38dp"
+                android:layout_height="38dp"/>
+            <TextView
+                android:visibility="gone"
+                android:id="@+id/tv_float_time"
+                android:text="20:20:20"
+                android:textSize="8sp"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/white"
+                android:background="@drawable/floating_time_bg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+    </RelativeLayout>
+</RelativeLayout>

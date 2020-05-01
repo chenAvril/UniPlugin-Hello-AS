@@ -1,0 +1,19 @@
+{
+  "nativePlugins": [
+
+    {
+      "hooksClass": "",
+      "plugins": [
+        {
+          "type": "module",
+          "name": "Record-Screen",
+          "class": "com.chen.recordscreen.RecordScreenModule"
+        }
+      ]
+    },
+    {
+      "hooksClass": "uni.dcloud.io.uniplugin_stepcounter.StepCounterHookProxy"
+    }
+  ]
+}
+
