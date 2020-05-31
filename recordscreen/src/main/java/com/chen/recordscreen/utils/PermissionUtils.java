@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +70,7 @@ public class PermissionUtils {
     }
 
     //处理权限返回的回调
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 
         if (requestCode==PERMISSION_CODE){
             boolean grantAll = true;

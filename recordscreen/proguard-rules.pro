@@ -74,3 +74,5 @@
 -keepclassmembers class * {
     void *(*Event);
 }
+
+-keep public class * extends com.taobao.weex.common.WXModule{*;}

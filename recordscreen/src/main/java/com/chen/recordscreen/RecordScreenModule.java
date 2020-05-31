@@ -12,12 +12,7 @@ import android.content.pm.PackageManager;
 import android.media.projection.MediaProjectionManager;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.text.TextUtils;
-import android.util.Log;
 
-import com.alibaba.fastjson.JSONObject;
 import com.chen.recordscreen.service.RecordListener;
 import com.chen.recordscreen.service.RecordService;
 import com.chen.recordscreen.utils.CommonUtil;
@@ -26,6 +21,9 @@ import com.chen.recordscreen.utils.ToastUtil;
 import com.taobao.weex.WXSDKEngine;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -73,11 +71,18 @@ public class RecordScreenModule extends WXSDKEngine.DestroyableModule {
 
         @Override
         public void onStopRecord(String path) {
-            JSONObject result = new JSONObject();
-            result.put("type", "filePath");
-            result.put("value", path);
-            jsCallback.invokeAndKeepAlive(result);
-            ToastUtil.showShort(mActivity, "录屏成功，已保存");
+            try {
+                if (mWXSDKInstance.getContext() instanceof Activity) {
+                    JSONObject result = new JSONObject();
+                    result.put("type", "filePath");
+                    result.put("value", path);
+                    jsCallback.invokeAndKeepAlive(result);
+                    ToastUtil.showShort(mActivity, "录屏成功，已保存");
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
         }
     };
 
@@ -86,9 +91,13 @@ public class RecordScreenModule extends WXSDKEngine.DestroyableModule {
 
     @JSMethod(uiThread = true)
     public void init(JSONObject options) {
-        if (mWXSDKInstance.getContext() instanceof Activity) {
-            isAudio = options.getBoolean("audio");
-            quality = options.getDouble("quality");
+        try {
+            if (mWXSDKInstance.getContext() instanceof Activity) {
+                isAudio = options.getBoolean("audio");
+                quality = options.getDouble("quality");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
@@ -100,29 +109,28 @@ public class RecordScreenModule extends WXSDKEngine.DestroyableModule {
             mActivity = (Activity) mWXSDKInstance.getContext();
 //            Log.e("startRecord","isAudio===>"+isAudio);
 //            isAudio=!isAudio;
+            needPermissions.add(Manifest.permission.RECORD_AUDIO);
+            needPermissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+            needPermissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-            if (timeCompare()) {
-                needPermissions.add(Manifest.permission.RECORD_AUDIO);
-                needPermissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
-                needPermissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-                //获取屏幕宽高
-                CommonUtil.init(mActivity);
-                //6.0以上的权限申请
-                permissionUtils = new PermissionUtils(mActivity);
-                permissionUtils.request(needPermissions, new PermissionUtils.CallBack() {
-                    @Override
-                    public void grantAll() {
-                        if (!isServiceRunning()) {
-                            Intent intent = new Intent(mActivity, RecordService.class);
-                            mActivity.bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
-                        }
-                        startScreenRecord();
+            //获取屏幕宽高
+            CommonUtil.init(mActivity);
+            //6.0以上的权限申请
+            permissionUtils = new PermissionUtils(mActivity);
+            permissionUtils.request(needPermissions, new PermissionUtils.CallBack() {
+                @Override
+                public void grantAll() {
+                    if (!isServiceRunning()) {
+                        Intent intent = new Intent(mActivity, RecordService.class);
+                        mActivity.bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
                     }
-                });
-            } else {
-                ToastUtil.showShort(mActivity, "试用期结束啦");
-            }
+                    startScreenRecord();
+                }
+            });
+//            if (timeCompare()) {
+//            } else {
+//                ToastUtil.showShort(mActivity, "试用期结束啦");
+//            }
         }
     }
 
@@ -167,7 +175,7 @@ public class RecordScreenModule extends WXSDKEngine.DestroyableModule {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PERMISSION_CODE) {
             permissionUtils.request(needPermissions, new PermissionUtils.CallBack() {
@@ -188,7 +196,7 @@ public class RecordScreenModule extends WXSDKEngine.DestroyableModule {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_CODE) {
             permissionUtils.onRequestPermissionsResult(requestCode, permissions, grantResults);
